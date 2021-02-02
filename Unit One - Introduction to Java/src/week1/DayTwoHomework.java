@@ -1,5 +1,7 @@
 package week1;
 
+//Each question in order 
+
 class DayTwoHomework {
     public static void main(String[] args) {
        circleArea();
