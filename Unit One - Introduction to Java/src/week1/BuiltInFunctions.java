@@ -1,5 +1,7 @@
 package week1;
 
+//Different Functions
+
 public class BuiltInFunctions {
   public static void main(String[] args) {
     exampleOne();
