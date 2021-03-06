@@ -24,36 +24,59 @@ public class ThreeCardPoker {
   public static void main(String[] args) {
     Scanner in = new Scanner(System.in);
     boolean playAgain = true;
+    int wallet = 1000;
+
+    System.out.println("**Welcome to Poker!**");
+    System.out.println("In your wallet you start with $" + wallet);
 
     while (playAgain){
-    int ante = getAnte(in);
-    int pairPlus = getPairPlus(in);
 
-    String playerHand = dealCards();
+      int ante = getAnte(in, wallet);
+      wallet -= ante;
+      int pairPlus = getPairPlus(in, wallet);
+      wallet -= pairPlus;
 
-    System.out.println("Here are YOUR cards: " + playerHand);
+      String playerHand = dealCards();
 
-    boolean playAnswer = getPlay(in);
-    int play = 0;
+      System.out.println("Here are YOUR cards: " + playerHand);
 
-    if(playAnswer)
-      play = ante;
+      boolean playAnswer = getPlay(in, wallet, ante);
+      int play = 0;
 
-    String dealerHand = dealCards();
+      if(playAnswer)
+        play = ante;
 
-    System.out.println("Here are the DEALER'S cards: " + dealerHand);
+      wallet -= play;
 
-    int playerHandType = handType(playerHand);
-    int dealerHandType = handType(dealerHand);
+      String dealerHand = dealCards();
 
-    int payout = getPayout(ante, pairPlus, play, dealerHandType, dealerHand, playerHandType, playerHand);
+      System.out.println("Here are the DEALER'S cards: " + dealerHand);
 
-    System.out.println("Here is your net gain/loss: " + payout);
+      int playerHandType = handType(playerHand);
+      int dealerHandType = handType(dealerHand);
 
-    playAgain = playAnother(in);
+      int payout = getPayout(ante, pairPlus, play, dealerHandType, dealerHand, playerHandType, playerHand);
+
+      System.out.println("Here is your net gain/loss: " + payout);
+      wallet += payout + ante + pairPlus + play;
+      System.out.println("Here is your wallet: " + wallet);
+
+      if(wallet < 50){
+        System.out.println("Oh No! Looks like you don't have enough money to continue");
+        playAgain = false;
+      } else {
+        playAgain = playAnother(in);
+      }
     }
+    System.out.println("Thanks for playing!");
   }
-
+  /**
+   * 
+   * @param in passes in the Scanner
+   * 
+   * @return true if the play wants to play again and answers "yes"
+   * @return false if the player does not want to play again and answers "no"
+   */
   private static boolean playAnother(Scanner in) {
     boolean validInput = false;
 
@@ -72,9 +95,20 @@ public class ThreeCardPoker {
     }
     return false;
 }
-
+  /**
+   * 
+   * @param ante 
+   * @param pairPlus
+   * @param play
+   * @param dealerHandType
+   * @param dealerHand
+   * @param playerHandType
+   * @param playerHand
+   * 
+   * @return calculates the net loss/gain according the payouts that the player select and who won
+   */
   private static int getPayout(int ante, int pairPlus, int play, int dealerHandType, String dealerHand, int playerHandType, String playerHand) {
-    int pairPlusPayout = playerHandType * pairPlus; 
+    int pairPlusPayout = playerHandType * pairPlus + pairPlus; 
     int netpairPlus = pairPlusPayout - pairPlus;
     int face = getFace(dealerHand, dealerHandType);
     String order = "2345678910JQKA";
@@ -103,7 +137,18 @@ public class ThreeCardPoker {
     return 0;
   }
   
-
+  /**
+   * 
+   * @param playerHandType
+   * @param playerHand
+   * @param dealerHandType
+   * @param dealerHand
+   * 
+   * @return based on the players hand and dealers hand, determines who won
+   * @return 0 if the dealer won
+   * @return 1 if the player won
+   * @return 2 if the dealer and player tie
+   */
   private static int whoWon(int playerHandType, String playerHand, int dealerHandType, String dealerHand) {
     int face = getFace(dealerHand, dealerHandType);
     int face2 = getFace(playerHand, playerHandType);
@@ -122,8 +167,14 @@ public class ThreeCardPoker {
 
     return 1;
   }
-
-private static int getFace(String hand, int handType) {
+  /**
+   * 
+   * @param hand
+   * @param handType
+   * 
+   * @return returns the highest face/card in a hand 
+   */
+  private static int getFace(String hand, int handType) {
     int space = hand.indexOf(" ");
     int space2 = hand.indexOf(" ", space + 1);
     String face1 = hand.substring(0, space - 1);
@@ -148,8 +199,17 @@ private static int getFace(String hand, int handType) {
 
     return getMax;
   }
-
-  private static boolean getPlay(Scanner in) {
+  /**
+   * 
+   * @param in
+   * @param wallet
+   * @param ante
+   * 
+   * prompts the user to enter in a play wager the same as the ante wager
+   * @return true if the user would like place a play wager
+   * @return false if the user would not like to place a play wager
+   */
+  private static boolean getPlay(Scanner in, int wallet, int ante) {
     boolean isValid = false;
 
     System.out.println("**A play wager is the same amount as the ante wager**");
@@ -158,8 +218,13 @@ private static int getFace(String hand, int handType) {
       System.out.print("Would you like to place an additional play wager? \"Y\" for yes and \"N\" for no: ");
       String answer = in.nextLine();
       if(answer.equalsIgnoreCase("Y") || answer.equalsIgnoreCase("Yes")){
+        if(wallet >= ante){
         isValid = true;
         return true;
+        } else {
+          System.out.println("You do not have enough money to make this bet, you have: " + wallet);
+          return false;
+        }
       } else if (answer.equalsIgnoreCase("N") || answer.equalsIgnoreCase("No") ){
         isValid = true;
         return false;
@@ -170,15 +235,27 @@ private static int getFace(String hand, int handType) {
     return false;
   }
 
-  private static int getAnte(Scanner in) {
+  /**
+   * 
+   * @param in
+   * @param wallet
+   * 
+   * prompts the user to enter an ante wager between 50-100
+   * @return the amount they entered for the ante wager
+   */
+  private static int getAnte(Scanner in, int wallet) {
     boolean isValid = false;
 
     while(!isValid){
       System.out.print("Please enter your ante wager between 50 and 100: ");
       String anteAsString = in.nextLine();
       if(isNumeric(anteAsString) && Integer.parseInt(anteAsString) >= 50 && Integer.parseInt(anteAsString) <= 100){
+        if(wallet >= Integer.parseInt(anteAsString)){
           isValid = true;
           return Integer.parseInt(anteAsString);
+        } else {
+          System.out.println("You do not have enough money to make this bet, you have: " + wallet);
+        }
       } else {
         System.out.print("Invalid Input! ");
       }
@@ -187,18 +264,29 @@ private static int getFace(String hand, int handType) {
     return 0;
   }
 
-  private static int getPairPlus(Scanner in) {
+  /**
+   * 
+   * @param in
+   * @param wallet
+   * 
+   * prompts the user to enter a pair+ wager between 50 and 100
+   * @return the amount they entered for the pair+ wager
+   */
+  private static int getPairPlus(Scanner in, int wallet) {
     boolean isValid = false;
     while(!isValid){   
       System.out.print("Please enter your pair+ wager between 50 and 100 or press \"N\" to decline: ");
       String pairPlusAsString = in.nextLine();
     if(isNumeric(pairPlusAsString) && Integer.parseInt(pairPlusAsString) >= 50 && 
-    Integer.parseInt(pairPlusAsString) <= 100 || pairPlusAsString.equalsIgnoreCase("N")){
-      isValid = true;
-      if(pairPlusAsString.equalsIgnoreCase("N"))
-        return 0;
-      else 
+    Integer.parseInt(pairPlusAsString) <= 100) {
+      if(wallet >= Integer.parseInt(pairPlusAsString)){
+        isValid = true;
         return Integer.parseInt(pairPlusAsString);
+      } else {
+        System.out.println("You do not have enough money to make this bet, you have: " + wallet);
+      }
+    } else if (pairPlusAsString.equalsIgnoreCase("N")){
+        return 0;
     } else {
       System.out.print("Invalid Input! ");
     }
@@ -208,6 +296,13 @@ private static int getFace(String hand, int handType) {
     return 0;
   }
 
+  /**
+   * 
+   * @param str
+   * 
+   * @return true if the string is a number
+   * @return false if it is not a number
+   */
   public static boolean isNumeric(String str) { 
     try {  
       Integer.parseInt(str);  
@@ -217,6 +312,13 @@ private static int getFace(String hand, int handType) {
     }  
   }
 
+  /**
+   * 
+   * @param hand
+   * 
+   * determines the handtype for a given hand
+   * @return the multiplier for the pair+ wager for a handtype
+   */
   private static int handType(String hand) {
       if(isStraightFlush(hand))
         return STRAIGHT_FLUSH;
@@ -232,47 +334,76 @@ private static int getFace(String hand, int handType) {
         return HIGH_CARD;
   }
 
+  /**
+   * 
+   * @param hand
+   * 
+   * @return true if the handtype is a pair
+   * @return false if it is not a pair
+   */
   private static boolean isPair(String hand) {
     int space = hand.indexOf(" ");
-    int space2 = hand.indexOf(" ", space+1);
-    String face1 = hand.substring(0,space-1);
-    String face2 = hand.substring(space+1,space2-1);
-    String face3 = hand.substring(space2+1,hand.length()-2);
+    int space2 = hand.indexOf(" ", space + 1);
+    String face1 = hand.substring(0, space - 1);
+    String face2 = hand.substring(space + 1,space2 - 1);
+    String face3 = hand.substring(space2 + 1,hand.length() - 2);
 
     if(face1.equals(face2) || face2.equals(face3) || face3.equals(face1))
         return true; 
     
     return false; 
-}
+  }
 
-private static boolean isStraightFlush(String hand){
-  if(isFlush(hand) && isStraight(hand))
-      return true;
+  /**
+   * 
+   * @param hand
+   * 
+   * uses the isFlush() and isStraightFlush() functions to determine if it is true for both
+   * @return true if the hand is a straight flush
+   * @return fals if it is not a straight fluish
+   */
+  private static boolean isStraightFlush(String hand){
+    if(isFlush(hand) && isStraight(hand))
+        return true;
 
-  return false; 
-}
+    return false; 
+  }
 
+  /**
+   * 
+   * @param hand
+   * 
+   * @return true if the hand is a straight
+   * @return false if the hand is not a straight
+   */
   private static boolean isStraight(String hand) {
-      int space = hand.indexOf(" ");
-      int space2 = hand.indexOf(" ", space + 1);
-      String face1 = hand.substring(0,space - 1);
-      String face2 = hand.substring(space+1,space2 - 1);
-      String face3 = hand.substring(space2+1,hand.length() - 2);
-      String order = "2345678910JQKA";
+    int space = hand.indexOf(" ");
+    int space2 = hand.indexOf(" ", space + 1);
+    String face1 = hand.substring(0,space - 1);
+    String face2 = hand.substring(space+1,space2 - 1);
+    String face3 = hand.substring(space2+1,hand.length() - 2);
+    String order = "2345678910JQKA";
 
-      int getMax = Math.max(order.indexOf(face1), Math.max(order.indexOf(face2), order.indexOf(face3)));
-      int getMin = Math.min(order.indexOf(face1), Math.min(order.indexOf(face2), order.indexOf(face3)));
-      int getMiddle = (order.indexOf(face1)  + order.indexOf(face2) + order.indexOf(face3)) - (getMax + getMin);
+    int getMax = Math.max(order.indexOf(face1), Math.max(order.indexOf(face2), order.indexOf(face3)));
+    int getMin = Math.min(order.indexOf(face1), Math.min(order.indexOf(face2), order.indexOf(face3)));
+    int getMiddle = (order.indexOf(face1)  + order.indexOf(face2) + order.indexOf(face3)) - (getMax + getMin);
 
-      if(getMin == 0 && getMiddle == 1 && getMax == 13)
-        return true;
+    if(getMin == 0 && getMiddle == 1 && getMax == 13)
+      return true;
       
-      if(getMax - 1 == getMiddle && getMiddle - 1 == getMin)
-        return true;
+    if(getMax - 1 == getMiddle && getMiddle - 1 == getMin)
+      return true;
 
     return false;
   }
 
+  /**
+   * 
+   * @param hand
+   * 
+   * @return true if the hand is a flush
+   * @return false if the hand is not a flush
+   */
   private static boolean isFlush(String hand) {
     int space = hand.indexOf(" ");
     int space2 = hand.indexOf(" ", space+1);
@@ -286,7 +417,13 @@ private static boolean isStraightFlush(String hand){
     
     return false;
 }
-
+  /**
+   * 
+   * @param hand
+   * 
+   * @return true if the hand is a three of a kind
+   * @return false if the hand is not a three of a kinds
+   */
   private static boolean isThreeOfKind(String hand) {
     int space = hand.indexOf(" ");
     int space2 = hand.indexOf(" ", space + 1);
@@ -300,6 +437,14 @@ private static boolean isStraightFlush(String hand){
       return false;
   }
 
+  /**
+   * deals the cards for one hand
+   * uses the getCard function to get a card
+   * uses the isUnique functions to see if that card was dealt before
+   * if it is unique add that card to the hand
+   * 
+   * @return a string of 3 cards for one hand
+   */
   private static String dealCards() {
     String cards = "";
 
@@ -316,10 +461,19 @@ private static boolean isStraightFlush(String hand){
     return cards;
   }
 
+  /**
+   * 
+   * @return a string of a face followed by a suit
+   */
   private static String getCard() {
     return getFace() + getSuit();
   }
 
+  /**
+   * 
+   * @return a random suit of hearts, diamonds, clubs spades
+   * H = heart, D = diamonds, C = clubs, S = spades
+   */
   private static String getSuit() {
     int suit = (int) (Math.random() * NUM_SUITS);
     if (suit == HEARTS)
@@ -334,6 +488,11 @@ private static boolean isStraightFlush(String hand){
       return null;
   }
 
+  /**
+   * 
+   * @return a random face of a card (between 2 - Ace)
+   * Numbers are themselves, J = jack, Q = queen, K = king, A = ace
+   */
   private static String getFace() {
     int face = (int) (Math.random() * NUM_FACES + 2);
     if (face >= 2 && face <= 10)
@@ -350,6 +509,14 @@ private static boolean isStraightFlush(String hand){
       return null;
   }
 
+  /**
+   * 
+   * @param playerHand
+   * @param card
+   * 
+   * @return true if the card is unique
+   * @return false if their is the same card in the hand
+   */
   public static boolean isUnique(String playerHand, String card) {
     return playerHand.indexOf(card) == -1;
   }
