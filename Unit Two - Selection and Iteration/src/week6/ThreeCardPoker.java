@@ -75,7 +75,7 @@ public class ThreeCardPoker {
    * @param in passes in the Scanner
    * 
    * @return true if the play wants to play again and answers "yes"
-   * @return false if the player does not want to play again and answers "no"
+   * false if the player does not want to play again and answers "no"
    */
   private static boolean playAnother(Scanner in) {
     boolean validInput = false;
@@ -97,13 +97,16 @@ public class ThreeCardPoker {
 }
   /**
    * 
-   * @param ante 
-   * @param pairPlus
-   * @param play
-   * @param dealerHandType
-   * @param dealerHand
-   * @param playerHandType
-   * @param playerHand
+   * @param ante is the ante between 50 and 100 that the user chooses
+   * @param pairPlus is the pair+ wager between 50 and 100 that the user chooses
+   * @param play is the play wager that the user chooses
+   * these are used to calculate the net gain/loss
+   * 
+   * @param dealerHandType the handtype of the dealer according to the payouts e.g. Highcard = 0
+   * @param dealerHand the dealers hand in the form "3D 4D 5D"
+   * @param playerHandType the handtype of the player
+   * @param playerHand the players hand
+   * helps determine the situation and which course of action to take when calculating payouts
    * 
    * @return calculates the net loss/gain according the payouts that the player select and who won
    */
@@ -139,15 +142,15 @@ public class ThreeCardPoker {
   
   /**
    * 
-   * @param playerHandType
-   * @param playerHand
-   * @param dealerHandType
-   * @param dealerHand
+   * @param playerHandType the players hand type e.g. straight, compared to the dealers to see who won
+   * @param playerHand the players hand in the form "3D 4D 5D", used to identify the high card
+   * @param dealerHandType the dealers hand type
+   * @param dealerHand the dealers hand
    * 
    * @return based on the players hand and dealers hand, determines who won
-   * @return 0 if the dealer won
-   * @return 1 if the player won
-   * @return 2 if the dealer and player tie
+   * 0 if the dealer won
+   * 1 if the player won
+   * 2 if the dealer and player tie
    */
   private static int whoWon(int playerHandType, String playerHand, int dealerHandType, String dealerHand) {
     int face = getFace(dealerHand, dealerHandType);
@@ -169,10 +172,10 @@ public class ThreeCardPoker {
   }
   /**
    * 
-   * @param hand
-   * @param handType
+   * @param hand the inputed hand of 3 cards, compared to see which card has the highest face
+   * @param handType the type of hand, used to indicate the situation of a pair 
    * 
-   * @return returns the highest face/card in a hand 
+   * @return the highest face/card in a hand 
    */
   private static int getFace(String hand, int handType) {
     int space = hand.indexOf(" ");
@@ -201,13 +204,13 @@ public class ThreeCardPoker {
   }
   /**
    * 
-   * @param in
-   * @param wallet
-   * @param ante
+   * @param in passes in the scanner, used to get the players input
+   * @param wallet how much money the player has, used to check whether the player can make the bet based on their money
+   * @param ante the play wager eqyals the ante wager, used to check whether the player can make the bet 
    * 
    * prompts the user to enter in a play wager the same as the ante wager
-   * @return true if the user would like place a play wager
-   * @return false if the user would not like to place a play wager
+   * @return true if the user would like place a play wager and has enough money
+   * false if the user would not like to place a play wager or does not have enough money
    */
   private static boolean getPlay(Scanner in, int wallet, int ante) {
     boolean isValid = false;
@@ -237,8 +240,8 @@ public class ThreeCardPoker {
 
   /**
    * 
-   * @param in
-   * @param wallet
+   * @param in passes in the Scanner
+   * @param wallet used to check if the player has enough money to make thieir bet
    * 
    * prompts the user to enter an ante wager between 50-100
    * @return the amount they entered for the ante wager
@@ -266,8 +269,8 @@ public class ThreeCardPoker {
 
   /**
    * 
-   * @param in
-   * @param wallet
+   * @param in passes in the Scanner
+   * @param wallet used to check if the player has enough money to make their bet
    * 
    * prompts the user to enter a pair+ wager between 50 and 100
    * @return the amount they entered for the pair+ wager
@@ -298,10 +301,10 @@ public class ThreeCardPoker {
 
   /**
    * 
-   * @param str
+   * @param str the input from the user when making bets, checks to see if this input is numeric
    * 
    * @return true if the string is a number
-   * @return false if it is not a number
+   * false if it is not a number
    */
   public static boolean isNumeric(String str) { 
     try {  
@@ -314,7 +317,8 @@ public class ThreeCardPoker {
 
   /**
    * 
-   * @param hand
+   * @param hand the hand of the player in "3D 4D 5D " form
+   * evaluated through a series of functions to see which type of hand it is
    * 
    * determines the handtype for a given hand
    * @return the multiplier for the pair+ wager for a handtype
@@ -336,10 +340,10 @@ public class ThreeCardPoker {
 
   /**
    * 
-   * @param hand
+   * @param hand the hand of the player, checked if it is a pair
    * 
    * @return true if the handtype is a pair
-   * @return false if it is not a pair
+   * false if it is not a pair
    */
   private static boolean isPair(String hand) {
     int space = hand.indexOf(" ");
@@ -356,11 +360,11 @@ public class ThreeCardPoker {
 
   /**
    * 
-   * @param hand
+   * @param hand the hand of the player, checked if it is a straight flush
    * 
    * uses the isFlush() and isStraightFlush() functions to determine if it is true for both
    * @return true if the hand is a straight flush
-   * @return fals if it is not a straight fluish
+   * false if it is not a straight fluish
    */
   private static boolean isStraightFlush(String hand){
     if(isFlush(hand) && isStraight(hand))
@@ -371,10 +375,10 @@ public class ThreeCardPoker {
 
   /**
    * 
-   * @param hand
+   * @param hand the hand of the player, checked if it is a straight
    * 
    * @return true if the hand is a straight
-   * @return false if the hand is not a straight
+   * false if the hand is not a straight
    */
   private static boolean isStraight(String hand) {
     int space = hand.indexOf(" ");
@@ -399,10 +403,10 @@ public class ThreeCardPoker {
 
   /**
    * 
-   * @param hand
+   * @param hand the hand of the player, checked if it is a flush
    * 
    * @return true if the hand is a flush
-   * @return false if the hand is not a flush
+   * false if the hand is not a flush
    */
   private static boolean isFlush(String hand) {
     int space = hand.indexOf(" ");
@@ -418,11 +422,11 @@ public class ThreeCardPoker {
     return false;
 }
   /**
-   * 
-   * @param hand
+   *  
+   * @param hand the hand of the player, checked if it is a three of a kind
    * 
    * @return true if the hand is a three of a kind
-   * @return false if the hand is not a three of a kinds
+   * false if the hand is not a three of a kinds
    */
   private static boolean isThreeOfKind(String hand) {
     int space = hand.indexOf(" ");
@@ -463,7 +467,7 @@ public class ThreeCardPoker {
 
   /**
    * 
-   * @return a string of a face followed by a suit
+   * @return a string of a face followed by a suit (combined to make a card) e.g. "5D"
    */
   private static String getCard() {
     return getFace() + getSuit();
@@ -471,7 +475,7 @@ public class ThreeCardPoker {
 
   /**
    * 
-   * @return a random suit of hearts, diamonds, clubs spades
+   * @return a random suit of hearts, diamonds, clubs or spades
    * H = heart, D = diamonds, C = clubs, S = spades
    */
   private static String getSuit() {
@@ -511,11 +515,11 @@ public class ThreeCardPoker {
 
   /**
    * 
-   * @param playerHand
-   * @param card
+   * @param playerHand the player hand in the process of dealing cards
+   * @param card the card that has been chosen to be dealt
    * 
    * @return true if the card is unique
-   * @return false if their is the same card in the hand
+   * false if their is the same card in the hand
    */
   public static boolean isUnique(String playerHand, String card) {
     return playerHand.indexOf(card) == -1;
