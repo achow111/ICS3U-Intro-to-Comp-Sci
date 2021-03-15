@@ -162,6 +162,19 @@ public class ThreeCardPoker {
       if(face > face2)
         return 0;
 
+      if(face == face2 && dealerHandType == 1){
+        int sum1 = getFacesSum(dealerHand);
+        int sum2 = getFacesSum(playerHand);
+
+        if(sum1 > sum2)
+          return 0;
+
+        if(sum2 > sum1)
+          return 1;
+
+        return 2;
+      }
+
       if(face == face2)
         return 2;
 
@@ -169,6 +182,27 @@ public class ThreeCardPoker {
     }
 
     return 1;
+  }
+  /**
+   * 
+   * @param hand the inputed hand of 3 cards, gets the faces of these cards and adds them together
+   * @return the sum of the faces of the hand, can be used to determine whether a hand with a pair
+   * is greater than a hand with the exact same pair
+   */
+  private static int getFacesSum(String hand) {
+
+    int space = hand.indexOf(" ");
+    int space2 = hand.indexOf(" ", space + 1);
+    String face1 = hand.substring(0, space - 1);
+    String face2 = hand.substring(space+1, space2 - 1);
+    String face3 = hand.substring(space2+1, hand.length() - 2);
+    String order = "2345678910JQKA";
+
+    int getMax = Math.max(order.indexOf(face1), Math.max(order.indexOf(face2), order.indexOf(face3)));
+    int getMin = Math.min(order.indexOf(face1), Math.min(order.indexOf(face2), order.indexOf(face3)));
+    int getMiddle = (order.indexOf(face1)  + order.indexOf(face2) + order.indexOf(face3)) - (getMax + getMin);
+
+    return getMax + getMin + getMiddle;
   }
   /**
    * 
